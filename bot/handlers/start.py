@@ -7,6 +7,7 @@ from aiogram.types import Message
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app import settings
+from bot.keyboards import main_menu
 from db.models import User
 from db.session import provide_session
 
@@ -24,7 +25,7 @@ async def cmd_start(session: AsyncSession, message: Message) -> None:
 
     user = await session.scalar(sa.select(User).where(User.id == user_id))
     if user:
-        await message.answer('Welcome back!')
+        welcome_text = 'Welcome back!'
     else:
         new_user = User(
             id=user_id,
@@ -35,4 +36,6 @@ async def cmd_start(session: AsyncSession, message: Message) -> None:
         session.add(new_user)
         await session.commit()
         logger.info('User %s registered', user_id)
-        await message.answer(f'Welcome to budget visualizer bot, {message.from_user.first_name}!')
+        welcome_text = 'Welcome to budget visualizer bot!'
+
+    await message.answer(f'{welcome_text} Choose option:', reply_markup=main_menu)
